@@ -9,6 +9,8 @@
   <engines>
     <engine name="cordova" version=">=6.0.0"/>
   </engines>
+  
+  <hook src="dependencyInstaller.js" type="before_plugin_install" />
 
   <preference name="TRANSLATION_PATH" default="translations/app/" />
 
