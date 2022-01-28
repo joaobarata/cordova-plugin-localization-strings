@@ -32,6 +32,31 @@ function initIosDir(){
     }
 }
 
+function isCordovaAbove(context, version) {
+    var cordovaVersion = context.opts.cordova.version;
+    console.log(cordovaVersion);
+    var sp = cordovaVersion.split('.');
+    return parseInt(sp[0]) >= version;
+  }
+
+
+function getSourceFolderPath(context) {
+    var sourceFolderPath;
+    var cordovaAbove7 = isCordovaAbove(context, 7);
+  
+    // New way of looking for the configuration files' folder
+    if (cordovaAbove7) {
+      sourceFolderPath = path.join(context.opts.projectRoot, "www","translations");
+    } else {
+      sourceFolderPath = path.join('www',"translations");
+    }
+     
+  
+    return sourceFolderPath;
+  }
+
+
+
 function getTargetIosDir() {
     initIosDir();
     return iosProjFolder;
@@ -82,6 +107,84 @@ function writeLocalisationFieldsToXcodeProj(filePaths, groupname, proj) {
         });
     }
 }
+
+
+function getTranslationPath (config, name) {
+    var value = config.match(new RegExp('name="' + name + '" value="(.*?)"', "i"))
+
+    if(value && value[1]) {
+        return value[1];
+
+    } else {
+        return null;
+    }
+}
+
+function getDefaultPath(context){
+    var configNodes = context.opts.plugin.pluginInfo._et._root._children;
+    var defaultTranslationPath = '';
+
+    for (var node in configNodes) {
+        if (configNodes[node].attrib.name == 'TRANSLATION_PATH') {
+            defaultTranslationPath = configNodes[node].attrib.default;
+        }
+    }
+    return defaultTranslationPath;
+}
+
+
+function getTargetLang(context) {
+    var targetLangArr = [];
+
+    var path = require('path');
+    var glob = require('glob');
+    var providedTranslationPathPattern;
+    var providedTranslationPathRegex;
+    var config = fs.readFileSync("config.xml").toString();  
+    var PATH = getTranslationPath(config, "TRANSLATION_PATH");
+
+
+    console.log('PATH: '+ PATH);
+
+    if(PATH == null){
+        PATH = getDefaultPath(context);
+        providedTranslationPathPattern = PATH + "*.json";
+        providedTranslationPathRegex = new RegExp((PATH + "(.*).json"));
+    }
+    if(PATH != null){
+        if(/^\s*$/.test(PATH)){
+            providedTranslationPathPattern = getDefaultPath(context);
+            providedTranslationPathPattern = PATH + "*.json";
+            providedTranslationPathRegex = new RegExp((PATH + "(.*).json"));
+        }
+        else {
+            providedTranslationPathPattern = PATH + "*.json";
+            providedTranslationPathRegex = new RegExp((PATH + "(.*).json"));
+        }
+    }
+
+    return new Promise(function (resolve, reject) {
+      glob(providedTranslationPathPattern, function(error, langFiles) {
+        if (error) {
+          reject(error);
+        }
+        langFiles.forEach(function(langFile) {
+          var matches = langFile.match(providedTranslationPathRegex);
+          if (matches) {
+            targetLangArr.push({
+              lang: matches[1],
+              path: path.join(context.opts.projectRoot, langFile)
+            });
+          }
+        });
+        resolve(targetLangArr);
+      });
+    });
+}
+
+
+
+
 module.exports = function(context) {
     var xcode = require('xcode');
 
@@ -162,75 +265,4 @@ module.exports = function(context) {
             });
         });
 };
-
-
-function getTranslationPath (config, name) {
-    var value = config.match(new RegExp('name="' + name + '" value="(.*?)"', "i"))
-
-    if(value && value[1]) {
-        return value[1];
-
-    } else {
-        return null;
-    }
-}
-
-function getDefaultPath(context){
-    var configNodes = context.opts.plugin.pluginInfo._et._root._children;
-    var defaultTranslationPath = '';
-
-    for (var node in configNodes) {
-        if (configNodes[node].attrib.name == 'TRANSLATION_PATH') {
-            defaultTranslationPath = configNodes[node].attrib.default;
-        }
-    }
-    return defaultTranslationPath;
-}
-
-
-function getTargetLang(context) {
-    var targetLangArr = [];
-
-    var path = require('path');
-    var glob = require('glob');
-    var providedTranslationPathPattern;
-    var providedTranslationPathRegex;
-    var config = fs.readFileSync("config.xml").toString();  
-    var PATH = getTranslationPath(config, "TRANSLATION_PATH");
-
-    if(PATH == null){
-        PATH = getDefaultPath(context);
-        providedTranslationPathPattern = PATH + "*.json";
-        providedTranslationPathRegex = new RegExp((PATH + "(.*).json"));
-    }
-    if(PATH != null){
-        if(/^\s*$/.test(PATH)){
-            providedTranslationPathPattern = getDefaultPath(context);
-            providedTranslationPathPattern = PATH + "*.json";
-            providedTranslationPathRegex = new RegExp((PATH + "(.*).json"));
-        }
-        else {
-            providedTranslationPathPattern = PATH + "*.json";
-            providedTranslationPathRegex = new RegExp((PATH + "(.*).json"));
-        }
-    }
-
-    return new Promise(function (resolve, reject) {
-      glob(providedTranslationPathPattern, function(error, langFiles) {
-        if (error) {
-          reject(error);
-        }
-        langFiles.forEach(function(langFile) {
-          var matches = langFile.match(providedTranslationPathRegex);
-          if (matches) {
-            targetLangArr.push({
-              lang: matches[1],
-              path: path.join(context.opts.projectRoot, langFile)
-            });
-          }
-        });
-        resolve(targetLangArr);
-      });
-    });
-}
 
