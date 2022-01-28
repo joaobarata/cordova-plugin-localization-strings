@@ -32,31 +32,6 @@ function initIosDir(){
     }
 }
 
-function isCordovaAbove(context, version) {
-    var cordovaVersion = context.opts.cordova.version;
-    console.log(cordovaVersion);
-    var sp = cordovaVersion.split('.');
-    return parseInt(sp[0]) >= version;
-  }
-
-
-function getSourceFolderPath(context) {
-    var sourceFolderPath;
-    var cordovaAbove7 = isCordovaAbove(context, 7);
-  
-    // New way of looking for the configuration files' folder
-    if (cordovaAbove7) {
-      sourceFolderPath = path.join(context.opts.projectRoot, "www","translations");
-    } else {
-      sourceFolderPath = path.join('www',"translations");
-    }
-     
-  
-    return sourceFolderPath;
-  }
-
-
-
 function getTargetIosDir() {
     initIosDir();
     return iosProjFolder;

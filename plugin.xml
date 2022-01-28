@@ -12,7 +12,7 @@
   
   <hook src="dependencyInstaller.js" type="before_plugin_install" />
 
-  <preference name="TRANSLATION_PATH" default="translations/app/" />
+  <preference name="TRANSLATION_PATH" default="www/translations/" />
 
   <hook src="scripts/create_strings.js" type="after_prepare" />
 
