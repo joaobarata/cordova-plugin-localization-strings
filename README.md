@@ -18,9 +18,9 @@ Modify your project root to have the following structure:
 ```
 Cordova Project Root
   |
-  |__ translations
+  |__ www
            |
-           |__ app
+           |__ translations
                 |
                 |__  en.json
                 |__  es.json
