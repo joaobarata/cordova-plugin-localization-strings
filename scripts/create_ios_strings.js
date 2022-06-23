@@ -3,7 +3,7 @@ var _ = require('lodash');
 var iconv = require('iconv-lite');
 var xmldom = require('xmldom');    
 var path = require('path');
-
+var xcode = require('xcode');
 
 var iosProjFolder;
 var iosPbxProjPath;
@@ -39,6 +39,7 @@ function getTargetIosDir() {
 
 function getXcodePbxProjPath() {
     initIosDir();
+    console.log('IOS PATH: '+ iosPbxProjPath);
     return iosPbxProjPath;
 }
 
@@ -125,6 +126,8 @@ function getTargetLang(context) {
         PATH = getDefaultPath(context);
         providedTranslationPathPattern = PATH + "*.json";
         providedTranslationPathRegex = new RegExp((PATH + "(.*).json"));
+
+        console.log('PATH: '+ PATH);
     }
     if(PATH != null){
         if(/^\s*$/.test(PATH)){
@@ -158,11 +161,8 @@ function getTargetLang(context) {
 }
 
 
-
-
 module.exports = function(context) {
-    var xcode = require('xcode');
-
+    
     var localizableStringsPaths = [];
     var infoPlistPaths = [];
 
