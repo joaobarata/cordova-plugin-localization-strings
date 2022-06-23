@@ -217,6 +217,9 @@ module.exports = function(context) {
             });
 
             var proj = xcode.project(getXcodePbxProjPath());
+            console.log( "Proj variable: "+!!proj);
+            
+            proj.parseSync();
 
             return new Promise(function (resolve, reject) {
               proj.parse(function (error) {
