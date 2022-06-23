@@ -27,8 +27,8 @@ function initIosDir(){
         var configDoc = (new xmldom.DOMParser()).parseFromString(config, 'application/xml');
         var name = getValue(configDoc, "name");
 
-        iosProjFolder =  "platforms/ios/" + name;
-        iosPbxProjPath = "platforms/ios/" + name + ".xcodeproj/project.pbxproj";
+        iosProjFolder =  "platforms/ios/" + name.trim();
+        iosPbxProjPath = "platforms/ios/" + name.trim() + ".xcodeproj/project.pbxproj";
     }
 }
 
@@ -218,8 +218,7 @@ module.exports = function(context) {
 
             var proj = xcode.project(getXcodePbxProjPath());
             console.log( "Proj variable: "+!!proj);
-            
-            proj.parseSync();
+  
 
             return new Promise(function (resolve, reject) {
               proj.parse(function (error) {
