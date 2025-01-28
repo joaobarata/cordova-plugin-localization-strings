@@ -39,7 +39,7 @@ function getProjectName() {
 
 function initIosDir() {
 	if (!iosProjFolder || !iosPbxProjPath) {
-		var projectName = getProjectName();
+		var projectName = getProjectName().trim();
 		iosProjFolder = "platforms/ios/" + projectName;
 		iosPbxProjPath =
 			"platforms/ios/" + projectName + ".xcodeproj/project.pbxproj";
